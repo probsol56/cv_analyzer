@@ -170,7 +170,7 @@ const AnalysisResult = ({ result }: Props) => {
                         elevation={0}
                         sx={{ p: 3, border: '1px solid #FECACA', backgroundColor: '#FEF2F2', height: '100%' }}
                     >
-                        <Stack direction="row" alignItems="center" spacing={1} mb={2}>
+                        <Stack direction="row" sx={{ alignItems: "center", mb: { xs: 2, sm: 0 } }} spacing={1}>
                             <ErrorOutlineIcon sx={{ color: '#DC2626', fontSize: '1.1rem' }} />
                             <Typography
                                 variant="overline"
@@ -181,7 +181,7 @@ const AnalysisResult = ({ result }: Props) => {
                         </Stack>
                         <Stack spacing={1.5}>
                             {result.weaknesses.map((w, i) => (
-                                <Stack key={i} direction="row" spacing={1.5} alignItems="flex-start">
+                                <Stack key={i} direction="row" spacing={1.5} sx={{ alignItems: "flex-start" }}>
                                     <Box
                                         sx={{
                                             width: 6,
