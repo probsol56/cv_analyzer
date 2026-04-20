@@ -27,10 +27,7 @@ const ResultPage = () => {
             <Container maxWidth="lg">
                 <Stack
                     direction={{ xs: 'column', sm: 'row' }}
-                    justifyContent="space-between"
-                    alignItems={{ sm: 'center' }}
-                    spacing={2}
-                    mb={5}
+                    sx={{ justifyContent: 'space-between', alignItems: 'center', spacing: 2, mb: 5 }}
                 >
                     <Box>
                         <Typography
@@ -64,7 +61,7 @@ const ResultPage = () => {
 
                 <AnalysisResult result={analysisResult} />
 
-                <Box mt={6} display="flex" justifyContent="center">
+                <Box sx={{ mt: 6, display: 'flex', justifyContent: 'center' }}>
                     <Button
                         variant="contained"
                         startIcon={<ArrowBackIcon />}

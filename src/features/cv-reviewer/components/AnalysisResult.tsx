@@ -99,7 +99,7 @@ const AnalysisResult = ({ result }: Props) => {
 
             {/* Market Fit Banner */}
             <Paper elevation={0} sx={{ p: 3, border: '1px solid #E2E8F0', backgroundColor: '#FFFBF0' }}>
-                <Stack direction={{ xs: 'column', sm: 'row' }} sx={{ justifyContent: "space-between", alignItems: { sm: "center" } }} spacing={2} mb={2}>
+                <Stack direction={{ xs: 'column', sm: 'row' }} sx={{ justifyContent: "space-between", alignItems: { sm: "center" }, mb: { xs: 2, sm: 0 } }} spacing={2}>
                     <Typography
                         variant="overline"
                         sx={{ color: '#64748B', letterSpacing: 2, fontSize: '0.65rem', fontFamily: 'Montserrat, sans-serif' }}
@@ -135,7 +135,7 @@ const AnalysisResult = ({ result }: Props) => {
                         elevation={0}
                         sx={{ p: 3, border: '1px solid #BBF7D0', backgroundColor: '#F0FDF4', height: '100%' }}
                     >
-                        <Stack direction="row" alignItems="center" spacing={1} mb={2}>
+                        <Stack direction="row" sx={{ alignItems: "center", mb: { xs: 2, sm: 0 } }} spacing={1}>
                             <CheckCircleOutlineIcon sx={{ color: '#16A34A', fontSize: '1.1rem' }} />
                             <Typography
                                 variant="overline"
@@ -146,7 +146,7 @@ const AnalysisResult = ({ result }: Props) => {
                         </Stack>
                         <Stack spacing={1.5}>
                             {result.strengths.map((s, i) => (
-                                <Stack key={i} direction="row" spacing={1.5} alignItems="flex-start">
+                                <Stack key={i} direction="row" spacing={1.5} sx={{ alignItems: "flex-start" }}>
                                     <Box
                                         sx={{
                                             width: 6,
@@ -276,7 +276,7 @@ const AnalysisResult = ({ result }: Props) => {
                 </Typography>
                 <Stack spacing={2}>
                     {result.improvement_tips.map((tip, i) => (
-                        <Stack key={i} direction="row" spacing={2} alignItems="flex-start">
+                        <Stack key={i} direction="row" spacing={2} sx={{ alignItems: "flex-start" }}>
                             <Box
                                 sx={{
                                     width: 28,
