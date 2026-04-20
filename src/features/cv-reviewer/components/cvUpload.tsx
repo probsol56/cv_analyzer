@@ -51,7 +51,7 @@ const CVUpload: React.FC = () => {
     const { setFile, currentFile, status } = useUiStore();
     const { mutate, isPending } = useAnalyzeCV();
     const [jobOptions, setJobOptions] = useState(DEFAULT_JOB_OPTIONS);
-    const [jobInputValue, setJobInputValue] = useState('');
+
     const [fileError, setFileError] = useState(false);
     const [fileSizeError, setFileSizeError] = useState(false);
 
