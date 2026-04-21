@@ -4,20 +4,23 @@ import { ThemeProvider, CssBaseline } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 
-// Theme and Pages
 import { theme } from './theme/theme';
+import Dashboard from './pages/Dashboard';
 import Home from './pages/Home';
 import ResultPage from './pages/ResultPage';
+import HrScannerPage from './pages/hr-scanner';
+import HrScannerResultPage from './pages/hr-scanner/result';
+import LinkedinPage from './pages/linkedin';
+import LinkedinResultPage from './pages/linkedin/result';
 
-// 1. Initialize TanStack Query Client
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 1, 
+      retry: 1,
       refetchOnWindowFocus: false,
     },
     mutations: {
-      retry: 0, 
+      retry: 0,
     },
   },
 });
@@ -38,8 +41,14 @@ const App: React.FC = () => {
 
         <Router>
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/cv-reviewer" element={<Home />} />
+            <Route path="/cv-reviewer/result" element={<ResultPage />} />
             <Route path="/results" element={<ResultPage />} />
+            <Route path="/hr-scanner" element={<HrScannerPage />} />
+            <Route path="/hr-scanner/result" element={<HrScannerResultPage />} />
+            <Route path="/linkedin" element={<LinkedinPage />} />
+            <Route path="/linkedin/result" element={<LinkedinResultPage />} />
           </Routes>
         </Router>
       </ThemeProvider>

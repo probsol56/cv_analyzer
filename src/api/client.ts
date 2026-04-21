@@ -1,20 +1,24 @@
-// src/api/client.ts
 import axios from 'axios';
 
-const apiClient = axios.create({
-    baseURL: import.meta.env.VITE_DIFY_API_URL, // .env ফাইলে এটি সেট করতে হবে
-    headers: {
-        'Content-Type': 'application/json',
-    },
-});
+const BASE_URL = import.meta.env.VITE_DIFY_API_URL as string;
 
-// রিকোয়েস্ট ইন্টারসেপ্টর: প্রতিবার API কলে API Key পাঠাবে
-apiClient.interceptors.request.use((config) => {
-    const apiKey = import.meta.env.VITE_DIFY_API_KEY;
-    if (apiKey) {
-        config.headers.Authorization = `Bearer ${apiKey}`;
-    }
+export const createDifyClient = (apiKey: string) => {
+  const client = axios.create({
+    baseURL: BASE_URL,
+    headers: { 'Content-Type': 'application/json' },
+  });
+
+  client.interceptors.request.use((config) => {
+    config.headers.Authorization = `Bearer ${apiKey}`;
     return config;
-});
+  });
+
+  return client;
+};
+
+// backward-compat default client (CV Reviewer)
+const apiClient = createDifyClient(
+  (import.meta.env.VITE_DIFY_CV_KEY ?? import.meta.env.VITE_DIFY_API_KEY) as string,
+);
 
 export default apiClient;

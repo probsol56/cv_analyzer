@@ -11,13 +11,13 @@ const ResultPage = () => {
 
     useEffect(() => {
         if (!analysisResult) {
-            navigate('/', { replace: true });
+            navigate('/cv-reviewer', { replace: true });
         }
     }, [analysisResult, navigate]);
 
     const handleReset = () => {
         reset();
-        navigate('/');
+        navigate('/cv-reviewer');
     };
 
     if (!analysisResult) return null;

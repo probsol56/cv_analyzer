@@ -50,7 +50,7 @@ export const useAnalyzeCV = () => {
                 setAnalysisResult(parsed);
                 setStatus('completed');
                 toast.success('CV Analysis Completed successfully!');
-                navigate('/results');
+                navigate('/cv-reviewer/result');
             } catch {
                 setStatus('error');
                 toast.error('Failed to parse analysis result.');
