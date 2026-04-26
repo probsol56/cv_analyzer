@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -12,33 +12,37 @@ import HrScannerPage from './pages/hr-scanner';
 import HrScannerResultPage from './pages/hr-scanner/result';
 import LinkedinPage from './pages/linkedin';
 import LinkedinResultPage from './pages/linkedin/result';
+import AuthModal from './shared/components/AuthModal';
+import { supabase } from './lib/supabaseClient';
+import { useAuthStore } from './store/useAuthStore';
+import { backendClient } from './api/client';
 
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-    mutations: {
-      retry: 0,
-    },
+    queries: { retry: 1, refetchOnWindowFocus: false },
+    mutations: { retry: 0 },
   },
 });
 
 const App: React.FC = () => {
+  const { setUser } = useAuthStore();
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        backendClient.get('/auth/me').catch(() => {});
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [setUser]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            style: {
-              fontFamily: 'Montserrat, sans-serif',
-            },
-          }}
-        />
-
+        <Toaster position="top-right" toastOptions={{ style: { fontFamily: 'Montserrat, sans-serif' } }} />
+        <AuthModal />
         <Router>
           <Routes>
             <Route path="/" element={<Dashboard />} />

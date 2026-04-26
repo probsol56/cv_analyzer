@@ -1,3 +1,4 @@
+import React from 'react';
 import {
     Accordion,
     AccordionDetails,
@@ -14,6 +15,8 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutlined';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutlined';
 import type { CvAnalysisResult } from '../../../types/dify';
+import BlurGate from '../../../shared/components/BlurGate';
+import { useAuthStore } from '../../../store/useAuthStore';
 
 interface Props {
     result: CvAnalysisResult;
@@ -84,7 +87,18 @@ const sectionLabels: Record<string, string> = {
     education: 'Education',
 };
 
+const VISIBLE_WEAKNESSES = 1;
+const VISIBLE_KEYWORDS = 3;
+const VISIBLE_TIPS = 2;
+
 const AnalysisResult = ({ result }: Props) => {
+    const { user } = useAuthStore();
+    const isAnonymous = !user;
+
+    const hiddenWeaknesses = Math.max(0, result.weaknesses.length - VISIBLE_WEAKNESSES);
+    const hiddenKeywords = Math.max(0, result.missing_keywords.length - VISIBLE_KEYWORDS);
+    const hiddenTips = Math.max(0, result.improvement_tips.length - VISIBLE_TIPS);
+
     return (
         <Stack spacing={4}>
             {/* Score Hero */}
@@ -147,16 +161,7 @@ const AnalysisResult = ({ result }: Props) => {
                         <Stack spacing={1.5}>
                             {result.strengths.map((s, i) => (
                                 <Stack key={i} direction="row" spacing={1.5} sx={{ alignItems: "flex-start" }}>
-                                    <Box
-                                        sx={{
-                                            width: 6,
-                                            height: 6,
-                                            borderRadius: '50%',
-                                            backgroundColor: '#16A34A',
-                                            mt: '7px',
-                                            flexShrink: 0,
-                                        }}
-                                    />
+                                    <Box sx={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#16A34A', mt: '7px', flexShrink: 0 }} />
                                     <Typography variant="body2" sx={{ color: '#166534', fontFamily: 'Montserrat, sans-serif', lineHeight: 1.6 }}>
                                         {s}
                                     </Typography>
@@ -166,39 +171,35 @@ const AnalysisResult = ({ result }: Props) => {
                     </Paper>
                 </Grid>
                 <Grid size={{ xs: 12, md: 6 }}>
-                    <Paper
-                        elevation={0}
-                        sx={{ p: 3, border: '1px solid #FECACA', backgroundColor: '#FEF2F2', height: '100%' }}
+                    <BlurGate
+                        isBlurred={isAnonymous && hiddenWeaknesses > 0}
+                        lockedLabel={`Register to see ${hiddenWeaknesses} more weakness${hiddenWeaknesses > 1 ? 'es' : ''}`}
                     >
-                        <Stack direction="row" sx={{ alignItems: "center", mb: { xs: 2, sm: 0 } }} spacing={1}>
-                            <ErrorOutlineIcon sx={{ color: '#DC2626', fontSize: '1.1rem' }} />
-                            <Typography
-                                variant="overline"
-                                sx={{ color: '#DC2626', letterSpacing: 2, fontSize: '0.65rem', fontFamily: 'Montserrat, sans-serif' }}
-                            >
-                                Weaknesses
-                            </Typography>
-                        </Stack>
-                        <Stack spacing={1.5}>
-                            {result.weaknesses.map((w, i) => (
-                                <Stack key={i} direction="row" spacing={1.5} sx={{ alignItems: "flex-start" }}>
-                                    <Box
-                                        sx={{
-                                            width: 6,
-                                            height: 6,
-                                            borderRadius: '50%',
-                                            backgroundColor: '#DC2626',
-                                            mt: '7px',
-                                            flexShrink: 0,
-                                        }}
-                                    />
-                                    <Typography variant="body2" sx={{ color: '#991B1B', fontFamily: 'Montserrat, sans-serif', lineHeight: 1.6 }}>
-                                        {w}
-                                    </Typography>
-                                </Stack>
-                            ))}
-                        </Stack>
-                    </Paper>
+                        <Paper
+                            elevation={0}
+                            sx={{ p: 3, border: '1px solid #FECACA', backgroundColor: '#FEF2F2', height: '100%' }}
+                        >
+                            <Stack direction="row" sx={{ alignItems: "center", mb: { xs: 2, sm: 0 } }} spacing={1}>
+                                <ErrorOutlineIcon sx={{ color: '#DC2626', fontSize: '1.1rem' }} />
+                                <Typography
+                                    variant="overline"
+                                    sx={{ color: '#DC2626', letterSpacing: 2, fontSize: '0.65rem', fontFamily: 'Montserrat, sans-serif' }}
+                                >
+                                    Weaknesses
+                                </Typography>
+                            </Stack>
+                            <Stack spacing={1.5}>
+                                {result.weaknesses.slice(0, isAnonymous ? VISIBLE_WEAKNESSES : undefined).map((w, i) => (
+                                    <Stack key={i} direction="row" spacing={1.5} sx={{ alignItems: "flex-start" }}>
+                                        <Box sx={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#DC2626', mt: '7px', flexShrink: 0 }} />
+                                        <Typography variant="body2" sx={{ color: '#991B1B', fontFamily: 'Montserrat, sans-serif', lineHeight: 1.6 }}>
+                                            {w}
+                                        </Typography>
+                                    </Stack>
+                                ))}
+                            </Stack>
+                        </Paper>
+                    </BlurGate>
                 </Grid>
             </Grid>
 
@@ -223,9 +224,7 @@ const AnalysisResult = ({ result }: Props) => {
                         }}
                     >
                         <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: '#C5A059' }} />}>
-                            <Typography
-                                sx={{ fontFamily: 'Playfair Display, serif', fontWeight: 600, fontSize: '1rem', color: '#0F172A' }}
-                            >
+                            <Typography sx={{ fontFamily: 'Playfair Display, serif', fontWeight: 600, fontSize: '1rem', color: '#0F172A' }}>
                                 {sectionLabels[key] ?? key}
                             </Typography>
                         </AccordionSummary>
@@ -246,24 +245,29 @@ const AnalysisResult = ({ result }: Props) => {
                 >
                     Missing Keywords
                 </Typography>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                    {result.missing_keywords.map((kw) => (
-                        <Chip
-                            key={kw}
-                            label={kw}
-                            variant="outlined"
-                            size="small"
-                            sx={{
-                                borderColor: '#C5A059',
-                                color: '#92400E',
-                                fontFamily: 'Montserrat, sans-serif',
-                                fontSize: '0.75rem',
-                                fontWeight: 600,
-                                borderRadius: 0,
-                            }}
-                        />
-                    ))}
-                </Box>
+                <BlurGate
+                    isBlurred={isAnonymous && hiddenKeywords > 0}
+                    lockedLabel={`Register to see ${hiddenKeywords} more keyword${hiddenKeywords > 1 ? 's' : ''}`}
+                >
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                        {result.missing_keywords.slice(0, isAnonymous ? VISIBLE_KEYWORDS : undefined).map((kw) => (
+                            <Chip
+                                key={kw}
+                                label={kw}
+                                variant="outlined"
+                                size="small"
+                                sx={{
+                                    borderColor: '#C5A059',
+                                    color: '#92400E',
+                                    fontFamily: 'Montserrat, sans-serif',
+                                    fontSize: '0.75rem',
+                                    fontWeight: 600,
+                                    borderRadius: 0,
+                                }}
+                            />
+                        ))}
+                    </Box>
+                </BlurGate>
             </Box>
 
             {/* Improvement Tips */}
@@ -274,31 +278,36 @@ const AnalysisResult = ({ result }: Props) => {
                 >
                     Improvement Tips
                 </Typography>
-                <Stack spacing={2}>
-                    {result.improvement_tips.map((tip, i) => (
-                        <Stack key={i} direction="row" spacing={2} sx={{ alignItems: "flex-start" }}>
-                            <Box
-                                sx={{
-                                    width: 28,
-                                    height: 28,
-                                    borderRadius: '50%',
-                                    backgroundColor: '#C5A059',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    flexShrink: 0,
-                                }}
-                            >
-                                <Typography sx={{ color: '#fff', fontFamily: 'Montserrat, sans-serif', fontWeight: 700, fontSize: '0.75rem' }}>
-                                    {i + 1}
+                <BlurGate
+                    isBlurred={isAnonymous && hiddenTips > 0}
+                    lockedLabel={`Register to unlock ${hiddenTips} more improvement tip${hiddenTips > 1 ? 's' : ''}`}
+                >
+                    <Stack spacing={2}>
+                        {result.improvement_tips.slice(0, isAnonymous ? VISIBLE_TIPS : undefined).map((tip, i) => (
+                            <Stack key={i} direction="row" spacing={2} sx={{ alignItems: "flex-start" }}>
+                                <Box
+                                    sx={{
+                                        width: 28,
+                                        height: 28,
+                                        borderRadius: '50%',
+                                        backgroundColor: '#C5A059',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        flexShrink: 0,
+                                    }}
+                                >
+                                    <Typography sx={{ color: '#fff', fontFamily: 'Montserrat, sans-serif', fontWeight: 700, fontSize: '0.75rem' }}>
+                                        {i + 1}
+                                    </Typography>
+                                </Box>
+                                <Typography variant="body2" sx={{ color: '#334155', fontFamily: 'Montserrat, sans-serif', lineHeight: 1.8, pt: '4px' }}>
+                                    {tip}
                                 </Typography>
-                            </Box>
-                            <Typography variant="body2" sx={{ color: '#334155', fontFamily: 'Montserrat, sans-serif', lineHeight: 1.8, pt: '4px' }}>
-                                {tip}
-                            </Typography>
-                        </Stack>
-                    ))}
-                </Stack>
+                            </Stack>
+                        ))}
+                    </Stack>
+                </BlurGate>
             </Box>
         </Stack>
     );

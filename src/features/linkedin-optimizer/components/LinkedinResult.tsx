@@ -11,6 +11,8 @@ import {
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CheckIcon from '@mui/icons-material/Check';
 import ScoreCard from '../../../shared/components/ScoreCard';
+import BlurGate from '../../../shared/components/BlurGate';
+import { useAuthStore } from '../../../store/useAuthStore';
 import type { LinkedinOptResult } from '../types/linkedin';
 
 interface Props {
@@ -18,6 +20,8 @@ interface Props {
 }
 
 const LinkedinResultComponent: React.FC<Props> = ({ result }) => {
+  const { user } = useAuthStore();
+  const isAnonymous = !user;
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const [copiedMessage, setCopiedMessage] = useState(false);
 
@@ -48,85 +52,77 @@ const LinkedinResultComponent: React.FC<Props> = ({ result }) => {
           Headline Rewrites (pick one)
         </Typography>
         <Stack spacing={2}>
-          {result.headline_options.map((headline, i) => (
-            <Paper
-              key={i}
-              elevation={0}
-              sx={{
-                p: 2.5,
-                border: '1px solid #E2E8F0',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                gap: 2,
-                '&:hover': { borderColor: '#C5A059' },
-              }}
-            >
-              <Typography variant="body2" sx={{ color: '#1E293B', fontWeight: 500, lineHeight: 1.5, flex: 1 }}>
-                {headline}
-              </Typography>
-              <Button
-                size="small"
-                variant="outlined"
-                startIcon={copiedIdx === i ? <CheckIcon /> : <ContentCopyIcon />}
-                onClick={() => handleCopyHeadline(headline, i)}
-                sx={{ borderRadius: 0, borderColor: copiedIdx === i ? '#16A34A' : '#E2E8F0', color: copiedIdx === i ? '#16A34A' : '#64748B', whiteSpace: 'nowrap', minWidth: 90 }}
-              >
+          {/* First headline always visible */}
+          {result.headline_options.slice(0, 1).map((headline, i) => (
+            <Paper key={i} elevation={0} sx={{ p: 2.5, border: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 2, '&:hover': { borderColor: '#C5A059' } }}>
+              <Typography variant="body2" sx={{ color: '#1E293B', fontWeight: 500, lineHeight: 1.5, flex: 1 }}>{headline}</Typography>
+              <Button size="small" variant="outlined" startIcon={copiedIdx === i ? <CheckIcon /> : <ContentCopyIcon />} onClick={() => handleCopyHeadline(headline, i)} sx={{ borderRadius: 0, borderColor: copiedIdx === i ? '#16A34A' : '#E2E8F0', color: copiedIdx === i ? '#16A34A' : '#64748B', whiteSpace: 'nowrap', minWidth: 90 }}>
                 {copiedIdx === i ? 'Copied!' : 'Copy'}
               </Button>
             </Paper>
           ))}
+          {/* Remaining headlines gated */}
+          {result.headline_options.length > 1 && (
+            <BlurGate
+              isBlurred={isAnonymous}
+              lockedLabel={`Register to unlock ${result.headline_options.length - 1} more headline option${result.headline_options.length > 2 ? 's' : ''}`}
+            >
+              <Stack spacing={2}>
+                {result.headline_options.slice(1).map((headline, i) => (
+                  <Paper key={i + 1} elevation={0} sx={{ p: 2.5, border: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 2, '&:hover': { borderColor: '#C5A059' } }}>
+                    <Typography variant="body2" sx={{ color: '#1E293B', fontWeight: 500, lineHeight: 1.5, flex: 1 }}>{headline}</Typography>
+                    <Button size="small" variant="outlined" startIcon={copiedIdx === i + 1 ? <CheckIcon /> : <ContentCopyIcon />} onClick={() => handleCopyHeadline(headline, i + 1)} sx={{ borderRadius: 0, borderColor: copiedIdx === i + 1 ? '#16A34A' : '#E2E8F0', color: copiedIdx === i + 1 ? '#16A34A' : '#64748B', whiteSpace: 'nowrap', minWidth: 90 }}>
+                      {copiedIdx === i + 1 ? 'Copied!' : 'Copy'}
+                    </Button>
+                  </Paper>
+                ))}
+              </Stack>
+            </BlurGate>
+          )}
         </Stack>
       </Box>
 
       {/* About Rewrite */}
-      <Paper elevation={0} sx={{ p: 3, border: '1px solid #E2E8F0', bgcolor: '#FFFBF0' }}>
-        <Typography variant="overline" sx={{ color: '#C5A059', letterSpacing: 2, fontSize: '0.65rem', display: 'block', mb: 2 }}>
-          About Section Rewrite
-        </Typography>
-        <Typography variant="body2" sx={{ color: '#334155', lineHeight: 1.9, whiteSpace: 'pre-wrap' }}>
-          {result.about_rewrite}
-        </Typography>
-      </Paper>
+      <BlurGate isBlurred={isAnonymous} lockedLabel="Register to see your full About section rewrite">
+        <Paper elevation={0} sx={{ p: 3, border: '1px solid #E2E8F0', bgcolor: '#FFFBF0' }}>
+          <Typography variant="overline" sx={{ color: '#C5A059', letterSpacing: 2, fontSize: '0.65rem', display: 'block', mb: 2 }}>
+            About Section Rewrite
+          </Typography>
+          <Typography variant="body2" sx={{ color: '#334155', lineHeight: 1.9, whiteSpace: 'pre-wrap' }}>
+            {result.about_rewrite}
+          </Typography>
+        </Paper>
+      </BlurGate>
 
       {/* Keyword Gaps & Skills */}
-      <Grid container spacing={3}>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Box>
-            <Typography variant="overline" sx={{ color: '#64748B', letterSpacing: 2, fontSize: '0.65rem', display: 'block', mb: 1.5 }}>
-              Missing Keywords
-            </Typography>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-              {result.keyword_gaps.map((kw) => (
-                <Chip
-                  key={kw}
-                  label={kw}
-                  variant="outlined"
-                  size="small"
-                  sx={{ borderColor: '#C5A059', color: '#92400E', fontSize: '0.75rem', fontWeight: 600, borderRadius: 0 }}
-                />
-              ))}
+      <BlurGate isBlurred={isAnonymous} lockedLabel="Register to see missing keywords and skills to add">
+        <Grid container spacing={3}>
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Box>
+              <Typography variant="overline" sx={{ color: '#64748B', letterSpacing: 2, fontSize: '0.65rem', display: 'block', mb: 1.5 }}>
+                Missing Keywords
+              </Typography>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                {result.keyword_gaps.map((kw) => (
+                  <Chip key={kw} label={kw} variant="outlined" size="small" sx={{ borderColor: '#C5A059', color: '#92400E', fontSize: '0.75rem', fontWeight: 600, borderRadius: 0 }} />
+                ))}
+              </Box>
             </Box>
-          </Box>
-        </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Box>
-            <Typography variant="overline" sx={{ color: '#64748B', letterSpacing: 2, fontSize: '0.65rem', display: 'block', mb: 1.5 }}>
-              Skills to Add
-            </Typography>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-              {result.skills_to_add.map((skill) => (
-                <Chip
-                  key={skill}
-                  label={skill}
-                  size="small"
-                  sx={{ bgcolor: '#0F172A', color: '#fff', fontSize: '0.75rem', fontWeight: 600, borderRadius: 0 }}
-                />
-              ))}
+          </Grid>
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Box>
+              <Typography variant="overline" sx={{ color: '#64748B', letterSpacing: 2, fontSize: '0.65rem', display: 'block', mb: 1.5 }}>
+                Skills to Add
+              </Typography>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                {result.skills_to_add.map((skill) => (
+                  <Chip key={skill} label={skill} size="small" sx={{ bgcolor: '#0F172A', color: '#fff', fontSize: '0.75rem', fontWeight: 600, borderRadius: 0 }} />
+                ))}
+              </Box>
             </Box>
-          </Box>
+          </Grid>
         </Grid>
-      </Grid>
+      </BlurGate>
 
       {/* Connection Message */}
       <Box>

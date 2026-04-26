@@ -15,8 +15,9 @@ export interface DifyUploadResponse {
 export interface DifyWorkflowRequest {
     inputs: {
         cv_file: DifyFileInput;
-        job_target: string;
-        market: string;
+        target_role: string;
+        location: string;
+        job_description?: string;
     };
     response_mode: 'blocking';
     user: string;

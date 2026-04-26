@@ -1,24 +1,29 @@
 import axios from 'axios';
+import { supabase } from '../lib/supabaseClient';
+import { useAuthStore } from '../store/useAuthStore';
 
-const BASE_URL = import.meta.env.VITE_DIFY_API_URL as string;
+export const backendClient = axios.create({
+  baseURL: import.meta.env.VITE_API_URL as string,
+  withCredentials: true,
+});
 
-export const createDifyClient = (apiKey: string) => {
-  const client = axios.create({
-    baseURL: BASE_URL,
-    headers: { 'Content-Type': 'application/json' },
-  });
+backendClient.interceptors.request.use(async (config) => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session?.access_token) {
+    config.headers.Authorization = `Bearer ${session.access_token}`;
+  }
+  return config;
+});
 
-  client.interceptors.request.use((config) => {
-    config.headers.Authorization = `Bearer ${apiKey}`;
-    return config;
-  });
-
-  return client;
-};
-
-// backward-compat default client (CV Reviewer)
-const apiClient = createDifyClient(
-  (import.meta.env.VITE_DIFY_CV_KEY ?? import.meta.env.VITE_DIFY_API_KEY) as string,
+backendClient.interceptors.response.use(
+  (res) => res,
+  (error) => {
+    if (error.response?.status === 402) {
+      const { used, limit } = error.response.data ?? {};
+      useAuthStore.getState().openAuthModal(
+        `You've used ${used}/${limit} free analyses. Register to continue.`,
+      );
+    }
+    return Promise.reject(error);
+  },
 );
-
-export default apiClient;

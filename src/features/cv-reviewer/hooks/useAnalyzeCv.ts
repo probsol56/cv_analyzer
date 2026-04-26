@@ -7,8 +7,9 @@ import { toast } from 'react-hot-toast';
 
 interface AnalyzeCVPayload {
     file: File;
-    jobTarget: string;
-    market: string;
+    targetRole: string;
+    location: string;
+    jobDescription?: string;
 }
 
 export const useAnalyzeCV = () => {
@@ -16,7 +17,7 @@ export const useAnalyzeCV = () => {
     const navigate = useNavigate();
 
     return useMutation({
-        mutationFn: async ({ file, jobTarget, market }: AnalyzeCVPayload): Promise<DifyWorkflowResponse> => {
+        mutationFn: async ({ file, targetRole, location, jobDescription }: AnalyzeCVPayload): Promise<DifyWorkflowResponse> => {
             try {
                 setStatus('uploading');
                 const uploadRes = await cvApi.uploadFile(file);
@@ -30,11 +31,12 @@ export const useAnalyzeCV = () => {
                             upload_file_id: fileId,
                             type: 'document',
                         },
-                        job_target: jobTarget,
-                        market: market,
+                        target_role: targetRole,
+                        location: location,
+                        job_description: jobDescription,
                     },
                     response_mode: 'blocking',
-                    user: 'user_123',
+                    user: 'frontend',
                 });
 
                 return analysisRes;

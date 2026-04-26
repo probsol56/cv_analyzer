@@ -1,0 +1,34 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id         String     @id
+  email      String     @unique
+  name       String?
+  avatar_url String?
+  provider   String
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
+  usage_logs UsageLog[]
+}
+
+model UsageLog {
+  id             String   @id @default(uuid())
+  user_id        String?
+  session_id     String?
+  ip_fingerprint String?
+  tool           String
+  used_at        DateTime @default(now())
+  user           User?    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id, tool])
+  @@index([session_id, tool])
+  @@index([ip_fingerprint, tool])
+}

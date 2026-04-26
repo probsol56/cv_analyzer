@@ -1,12 +1,22 @@
-// src/pages/Home.tsx
 import React from 'react';
-import { Box, Container, Typography, Stack, Grid } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { Box, Button, Container, Typography, Stack, Grid } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CVUpload from '../features/cv-reviewer/components/cvUpload';
 
 const Home: React.FC = () => {
+    const navigate = useNavigate();
+
     return (
         <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', py: 8 }}>
             <Container maxWidth="lg">
+                <Button
+                    startIcon={<ArrowBackIcon />}
+                    onClick={() => navigate('/')}
+                    sx={{ mb: 4, color: 'text.secondary', fontWeight: 600 }}
+                >
+                    Back to Tools
+                </Button>
                 <Grid container spacing={4}>
                     {/* Left Side: Editorial Branding */}
                     <Grid size={{ xs: 12, md: 6 }}>

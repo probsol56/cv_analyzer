@@ -41,8 +41,9 @@ const DEFAULT_JOB_OPTIONS = [
 const filter = createFilterOptions<string>();
 
 const schema = z.object({
-    jobTarget: z.string().min(3, 'Please select or enter a job title'),
-    market: z.enum(['Bangladesh', 'International'], { message: 'Please select a market' }),
+    targetRole: z.string().min(3, 'Please select or enter a job title'),
+    location: z.enum(['Bangladesh', 'International', 'Remote'], { message: 'Please select a location' }),
+    jobDescription: z.string().optional(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -57,7 +58,7 @@ const CVUpload: React.FC = () => {
 
     const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
         resolver: zodResolver(schema),
-        defaultValues: { jobTarget: '', market: 'Bangladesh' },
+        defaultValues: { targetRole: '', location: 'Bangladesh' },
     });
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,7 +80,7 @@ const CVUpload: React.FC = () => {
             setFileError(true);
             return;
         }
-        mutate({ file: currentFile, jobTarget: data.jobTarget, market: data.market });
+        mutate({ file: currentFile, targetRole: data.targetRole, location: data.location, jobDescription: data.jobDescription });
     };
 
     return (
@@ -116,7 +117,7 @@ const CVUpload: React.FC = () => {
 
                 {/* Target Job Autocomplete */}
                 <Controller
-                    name="jobTarget"
+                    name="targetRole"
                     control={control}
                     render={({ field }) => (
                         <Autocomplete
@@ -147,10 +148,10 @@ const CVUpload: React.FC = () => {
                             renderInput={(params) => (
                                 <TextField
                                     {...params}
-                                    label="Target Job"
+                                    label="Target Role"
                                     placeholder="ex: Software Engineer"
-                                    error={!!errors.jobTarget}
-                                    helperText={errors.jobTarget?.message}
+                                    error={!!errors.targetRole}
+                                    helperText={errors.targetRole?.message}
                                     sx={{ '& .MuiOutlinedInput-root': { borderRadius: '0px' } }}
                                 />
                             )}
@@ -158,19 +159,37 @@ const CVUpload: React.FC = () => {
                     )}
                 />
 
-                {/* Market Select */}
+                {/* location Select */}
                 <Controller
-                    name="market"
+                    name="location"
                     control={control}
                     render={({ field }) => (
-                        <FormControl fullWidth error={!!errors.market} sx={{ '& .MuiOutlinedInput-root': { borderRadius: '0px' } }}>
-                            <InputLabel>Market</InputLabel>
-                            <Select {...field} label="Market" sx={{ borderRadius: '0px' }}>
+                        <FormControl fullWidth error={!!errors.location} sx={{ '& .MuiOutlinedInput-root': { borderRadius: '0px' } }}>
+                            <InputLabel>Location</InputLabel>
+                            <Select {...field} label="Location" sx={{ borderRadius: '0px' }}>
                                 <MenuItem value="Bangladesh">Bangladesh</MenuItem>
                                 <MenuItem value="International">International</MenuItem>
+                                <MenuItem value="Remote">Remote</MenuItem>
                             </Select>
-                            {errors.market && <FormHelperText>{errors.market.message}</FormHelperText>}
+                            {errors.location && <FormHelperText>{errors.location.message}</FormHelperText>}
                         </FormControl>
+                    )}
+                />
+
+                {/* Job Description */}
+                <Controller
+                    name="jobDescription"
+                    control={control}
+                    render={({ field }) => (
+                        <TextField
+                            {...field}
+                            label="Job Description"
+                            placeholder="Paste the job description here (optional)"
+                            multiline
+                            rows={5}
+                            fullWidth
+                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: '0px' } }}
+                        />
                     )}
                 />
 

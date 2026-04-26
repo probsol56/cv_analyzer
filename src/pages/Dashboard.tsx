@@ -43,7 +43,6 @@ const Dashboard: React.FC = () => {
               variant="body1"
               sx={{
                 color: 'rgba(255,255,255,0.65)',
-                maxWidth: 520,
                 fontSize: '1rem',
                 lineHeight: 1.7,
               }}
